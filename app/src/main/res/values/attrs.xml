@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="AdView">
+        <attr name="slotId" format="string" />
+        <attr name="siteId" format="string"/>
+        <attr name="slotWidth" format="string"/>
+        <attr name="slotHeight" format="string"/>
+    </declare-styleable>
+</resources>

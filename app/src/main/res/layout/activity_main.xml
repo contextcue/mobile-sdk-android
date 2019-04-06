@@ -16,15 +16,19 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageView
-        android:id="@+id/imageView"
+    <com.contextcue.adview.AdView
+        android:id="@+id/adView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:src="@drawable/contextcue_test_320x50"
         android:adjustViewBounds="true"
-        android:onClick="adClick"/>
+        android:src="@drawable/contextcue_test_320x50"
+        app:siteId="2e0c34c2-77c9-484c-9e76-7ce3f0a4de7a"
+        app:slotId="pK6RiSBs1"
+        app:slotWidth="320"
+        app:slotHeight="50"
+        />
 
 
 </RelativeLayout>

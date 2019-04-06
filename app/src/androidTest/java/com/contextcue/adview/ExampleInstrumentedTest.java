@@ -1,4 +1,4 @@
-package com.example.testad;
+package com.contextcue.adview;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;

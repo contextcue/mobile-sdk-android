@@ -1,4 +1,4 @@
-package com.example.testad;
+package com.contextcue.adview;
 
 import org.junit.Test;
 
