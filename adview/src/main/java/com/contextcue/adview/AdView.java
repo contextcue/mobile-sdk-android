@@ -18,25 +18,24 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.InputStream;
-import java.net.HttpURLConnection;
+import java.lang.ref.WeakReference;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Locale;
-import java.util.TimeZone;
 
 import static android.support.v4.content.ContextCompat.startActivity;
 
 public class AdView extends AppCompatImageView implements View.OnClickListener {
 
-    private static final String AD_TAG = "contextcue";
+    public static final String AD_TAG = "contextcue";
     private RequestQueue queue;
     private String redirectURI;
     private View.OnClickListener clickListener;
@@ -64,15 +63,20 @@ public class AdView extends AppCompatImageView implements View.OnClickListener {
             try {
                 for (int i = 0; i < count; i++) {
                     int attr = typedArray.getIndex(i);
-                    switch (attr) {
-                        case R.styleable.AdView_slotId : slotId = typedArray.getString(attr);
-                            break;
-                        case R.styleable.AdView_siteId : siteId = typedArray.getString(attr);
-                            break;
-                        case R.styleable.AdView_slotWidth : slotWidth = typedArray.getString(attr);
-                            break;
-                        case R.styleable.AdView_slotHeight : slotHeight = typedArray.getString(attr);
-                            break;
+                    if(attr == R.styleable.AdView_slotId) {
+                        slotId = typedArray.getString(attr);
+                    }
+
+                    if(attr == R.styleable.AdView_siteId) {
+                        siteId = typedArray.getString(attr);
+                    }
+
+                    if(attr == R.styleable.AdView_slotWidth) {
+                        slotWidth = typedArray.getString(attr);
+                    }
+
+                    if(attr == R.styleable.AdView_slotHeight) {
+                        slotHeight = typedArray.getString(attr);
                     }
                 }
             }
@@ -88,10 +92,9 @@ public class AdView extends AppCompatImageView implements View.OnClickListener {
 
     public void loadAd() {
         String userAgent = System.getProperty("http.agent");
-        String timeZone = TimeZone.getDefault().getID();
         SimpleDateFormat format = new SimpleDateFormat("HH:mm", Locale.US);
         String timeNow = format.format(new Date());
-        Calendar calendar = Calendar.getInstance();
+        Calendar calendar = GregorianCalendar.getInstance();
         String dayOfWeek = Integer.toString(calendar.get(Calendar.DAY_OF_WEEK) - 1);
 
         // String host = "http://10.0.2.2:3000";
@@ -100,15 +103,12 @@ public class AdView extends AppCompatImageView implements View.OnClickListener {
                 "\"w\": " + slotWidth + "," +
                 "\"h\": " + slotHeight + "}]," +
                 "\"ua\": \"" + userAgent + "\"," +
-                "\"tz\": \"" + timeZone + "\"," +
                 "\"site\": \"" + siteId + "\"," +
                 " \"time\":\"" + timeNow + "\"," +
                 "\"dow\":\"" + dayOfWeek + "\"}";
 
         Log.d(AD_TAG, "Loading ad fetch url: " + url);
-
-        final ImageView adImage = this;
-
+        final ImageView adView = this;
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                 (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
 
@@ -118,7 +118,7 @@ public class AdView extends AppCompatImageView implements View.OnClickListener {
                             Log.d(AD_TAG, "Loading ad response: " + response);
 
                             String adURI = response.getJSONObject("data").getJSONArray("slots").getJSONObject(0).getString("adURI");
-                            new DownloadImageTask(adImage).execute(adURI);
+                            new DownloadImageTask(adView, Math.round(context.getResources().getDisplayMetrics().density)).execute(adURI);
                             redirectURI = response.getJSONObject("data").getJSONArray("slots").getJSONObject(0).getString("redirectURI");
                             Log.d(AD_TAG, "Loading ad uri: " + adURI);
                             Log.d(AD_TAG, "Loading ad redirect uri: " + redirectURI);
@@ -152,51 +152,28 @@ public class AdView extends AppCompatImageView implements View.OnClickListener {
     @Override
     public void onClick(View v) {
         String url = redirectURI;
+
+        if (url != null &&!url.startsWith("http://") && !url.startsWith("https://")) {
+            url = "https://" + url;
+        }
+
         // url = url.replaceFirst("localhost", "10.0.2.2");
         Log.d(AD_TAG, "adclick redirect: " + url);
 
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        Log.d(AD_TAG, "response is: " + response);
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-
-                Log.d(AD_TAG, "volley error");
-
-                final int status = error.networkResponse.statusCode;
-                // Handle 30x
-                if(HttpURLConnection.HTTP_MOVED_PERM == status || status == HttpURLConnection.HTTP_MOVED_TEMP || status == HttpURLConnection.HTTP_SEE_OTHER) {
-                    String location = error.networkResponse.headers.get("Location");
-                    if (!location.startsWith("http://") && !location.startsWith("https://")) {
-                        location = "http://" + location;
-                    }
-
-                    Log.d(AD_TAG, "redirect to: " + location);
-
-                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(location));
-                    startActivity(context, browserIntent, null);
-                } else {
-                    Log.d(AD_TAG, "redirect: failed, " + error.toString() + " " + error.networkResponse.statusCode);
-                }
-            }
-        });
-
-        queue.add(stringRequest);
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+        startActivity(context, browserIntent, null);
 
         if (clickListener != null) {
             clickListener.onClick(this);
         }
     }
 
-    private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
-        ImageView bmImage;
-
-        public DownloadImageTask(ImageView bmImage) {
-            this.bmImage = bmImage;
+    private static class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
+        private WeakReference<ImageView> contextRef;
+        private Integer density;
+        DownloadImageTask(ImageView imageView, Integer density) {
+            this.density = density;
+            this.contextRef = new WeakReference<>(imageView);
         }
 
         protected Bitmap doInBackground(String... urls) {
@@ -204,8 +181,8 @@ public class AdView extends AppCompatImageView implements View.OnClickListener {
             Bitmap bm = null;
             try {
                 BitmapFactory.Options options = new BitmapFactory.Options();
-                options.inTargetDensity = Math.round(getResources().getDisplayMetrics().density);
-                options.inDensity = Math.round(getResources().getDisplayMetrics().density);
+                options.inTargetDensity = density;
+                options.inDensity = density;
                 options.inScaled = true;
                 InputStream in = new java.net.URL(urldisplay).openStream();
                 bm = BitmapFactory.decodeStream(in, null, options);
@@ -217,7 +194,10 @@ public class AdView extends AppCompatImageView implements View.OnClickListener {
         }
 
         protected void onPostExecute(Bitmap result) {
-            bmImage.setImageBitmap(result);
+            ImageView imageView = contextRef.get();
+            if(imageView != null) {
+                imageView.setImageBitmap(result);
+            }
         }
     }
 

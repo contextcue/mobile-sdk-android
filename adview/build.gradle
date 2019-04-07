@@ -1,0 +1,127 @@
+apply plugin: 'com.android.library'
+apply plugin: 'com.jfrog.bintray'
+apply plugin: 'maven-publish'
+
+android {
+    compileSdkVersion 28
+
+    defaultConfig {
+        minSdkVersion 15
+        targetSdkVersion 28
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+}
+
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+task sourceJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier "sources"
+}
+
+publishing {
+    publications {
+        Production(MavenPublication) {
+                artifactId 'adview'
+                artifact(sourceJar)
+                artifact("$buildDir/outputs/aar/adview.aar")
+                artifact javadocJar
+            pom {
+                groupId 'com.contextcue'
+                version '1.0.4'
+                name = 'adview'
+                description = 'Serve ContextCue advertisements on your Android application'
+                url = "https://github.com/contextcue/mobile-sdk-android"
+                licenses {
+                    license {
+                        name = 'GPL-3.0'
+                        url = 'https://opensource.org/licenses/gpl-3.0.html'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'cpitzo'
+                        name = 'Corey Pitzo'
+                        email = 'corey.pitzo@contextcue.com'
+                    }
+                }
+                scm {
+                    url = 'https://github.com/contextcue/mobile-sdk-android'
+                }
+            }
+
+            pom.withXml {
+                def dependenciesNode = asNode().getAt('dependencies')[0] ?: asNode().appendNode('dependencies')
+
+                // Iterate over the implementation dependencies (we don't want the test ones), adding a <dependency> node for each
+                configurations.implementation.allDependencies.each {
+                    // Ensure dependencies such as fileTree are not included.
+                    if (it.name != 'unspecified') {
+                        def dependencyNode = dependenciesNode.appendNode('dependency')
+                        dependencyNode.appendNode('groupId', it.group)
+                        dependencyNode.appendNode('artifactId', it.name)
+                        dependencyNode.appendNode('version', it.version)
+                    }
+                }
+            }
+        }
+    }
+}
+
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
+bintray {
+    user = properties.getProperty("bintray.user")
+    key = properties.getProperty("bintray.apikey")
+    publications = ['Production']
+    pkg {
+        repo = "contextcue-mobile-sdk-android"
+        name = "com.contextcue.adview"
+        desc = "Serve ContextCue advertisements on your Android application"
+        websiteUrl = "https://github.com/contextcue/mobile-sdk-android"
+        vcsUrl = "https://github.com/contextcue/mobile-sdk-android"
+        licenses = ['GPL-3.0']
+        publish = true
+        publicDownloadNumbers = true
+        version {
+            name = '1.0.4-RELEASE'
+            released  = new Date()
+            vcsTag = '1.0.4'
+            desc = "Serve ContextCue advertisements on your Android application"
+            gpg {
+                sign = true //Determines whether to GPG sign the files. The default is false
+                passphrase = properties.getProperty("bintray.gpg.password")
+                //Optional. The passphrase for GPG signing'
+            }
+        }
+    }
+}
+
+
+dependencies {
+    implementation 'com.android.volley:volley:1.1.1'
+    implementation 'com.android.support:appcompat-v7:28.0.0'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+}

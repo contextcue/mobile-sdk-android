@@ -1,7 +1,9 @@
-package com.contextcue.adview;
+package com.contextcue.example.adview;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+
+import com.contextcue.adview.R;
 
 public class MainActivity extends AppCompatActivity {
 

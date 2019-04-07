@@ -1,4 +1,4 @@
-package com.contextcue.adview;
+package com.contextcue.adview.example;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;

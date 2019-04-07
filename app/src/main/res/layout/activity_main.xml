@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context="com.contextcue.example.adview.MainActivity">
 
     <TextView
         android:id="@+id/textintro"
@@ -12,9 +12,7 @@
         android:layout_height="wrap_content"
         android:text="AHHHHHH"
         android:textStyle="bold"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+ />
 
     <com.contextcue.adview.AdView
         android:id="@+id/adView"
