@@ -53,8 +53,8 @@ publishing {
                 url = "https://github.com/contextcue/mobile-sdk-android"
                 licenses {
                     license {
-                        name = 'GPL-3.0'
-                        url = 'https://opensource.org/licenses/gpl-3.0.html'
+                        name = 'MIT'
+                        url = 'https://opensource.org/licenses/mit-license.php'
                     }
                 }
                 developers {
@@ -100,7 +100,7 @@ bintray {
         desc = "Serve ContextCue advertisements on your Android application"
         websiteUrl = "https://github.com/contextcue/mobile-sdk-android"
         vcsUrl = "https://github.com/contextcue/mobile-sdk-android"
-        licenses = ['GPL-3.0']
+        licenses = ['MIT']
         publish = true
         publicDownloadNumbers = true
         version {

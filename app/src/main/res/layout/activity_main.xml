@@ -22,8 +22,8 @@
         android:layout_centerHorizontal="true"
         android:adjustViewBounds="true"
         android:src="@drawable/contextcue_test_320x50"
-        app:siteId="2e0c34c2-77c9-484c-9e76-7ce3f0a4de7a"
-        app:slotId="pK6RiSBs1"
+        app:siteId="29025d2d-d9b7-4251-913b-2f4b3cfdc752"
+        app:slotId="XXXXXXXXX"
         app:slotWidth="320"
         app:slotHeight="50"
         />
