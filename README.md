@@ -18,13 +18,20 @@ This library supports android API 15 and above. You also need to add the INTERNE
 
 ### Installing
 
-To install this library add this dependency to your build.gradle
+To install this library add this repository to your project build.gradle
+ 
+ ```
+ maven {
+     url "https://dl.bintray.com/cpitzo/contextcue-mobile-sdk-android"
+ }
+ ```
+and this dependency to your module build.gradle.
 
 ```
-Give the example
+implementation 'com.contextcue:adview:1.0.4'
 ```
 
-And then put an AdView component in your layout
+And then put an AdView component in your activity layout
 
 ```
 <com.contextcue.adview.AdView
@@ -47,7 +54,7 @@ The sizing can be changed to whatever you like, but we will always select an ad 
 
 ## Versioning
 
-We use [Bintray](https://bintray.com/cpitzo/) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags).
+We use [Bintray](https://bintray.com/cpitzo/contextcue-mobile-sdk-android/com.contextcue.adview) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags).
 The packages are published to Bintray, JCentral, and Maven.
 
 ## Authors
